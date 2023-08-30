@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { routes } = require('./routes/route');
 
 const { PORT = 3000, DB_ADDRESS = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
 
@@ -16,6 +17,10 @@ mongoose
     console.log('Error on connect');
     console.log(err);
   });
+
+app.use('*', express.json());
+
+app.use(routes);
 
 app.listen(PORT, () => {
   console.log(`App started on port ${PORT}`);

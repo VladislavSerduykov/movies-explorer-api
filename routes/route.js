@@ -1,5 +1,8 @@
 const express = require('express');
-const { celebrate, Joi } = require('celebrate')
+const { celebrate, Joi } = require('celebrate');
+const { createUser } = require('../controllers/users');
+const { NotFoundError } = require('../errors/NotFoundError');
+const { usersRoutes } = require('./users');
 
 const routes = express.Router();
 
@@ -9,20 +12,20 @@ routes.post('/signup', celebrate({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
-}), );
+}), createUser);
 
-routes.post('signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-  }),
-}), )
+// routes.post('signin', celebrate({
+Joi.object().keys({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+}),
+// }), )
 
-routes.use('/users', )
-routes.use('/movies', )
+routes.use('/users', usersRoutes);
+// routes.use('/movies', )
 
 routes.all('*', (req, res, next) => {
-  next(new )
-})
+  next(new NotFoundError('Адрес не найден'));
+});
 
 module.exports = { routes };
