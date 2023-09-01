@@ -1,14 +1,10 @@
 const express = require('express');
-const { celebrate, Joi } = require('celebrate');
 const { updateUser, getUser } = require('../controllers/users');
+const { updateUserValidator } = require('../utils/validators/users');
 
-const usersRoutes = express.Router();
+const users = express.Router();
 
-usersRoutes.get('/', getUser);
-usersRoutes.patch('/me', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-  }),
-}), updateUser);
+users.get('/me', getUser);
+users.patch('/me', updateUserValidator, updateUser);
 
-module.exports = { usersRoutes };
+module.exports = { users };

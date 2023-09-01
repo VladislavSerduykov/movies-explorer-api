@@ -1,31 +1,27 @@
 const express = require('express');
-const { celebrate, Joi } = require('celebrate');
-const { createUser } = require('../controllers/users');
-const { NotFoundError } = require('../errors/NotFoundError');
-const { usersRoutes } = require('./users');
+
+const { users } = require('./users');
+const { movies } = require('./movies');
+const { auth } = require('../middlewares/auth');
+const { createUser, login } = require('../controllers/users');
+const { createUserValidator, loginValidator } = require('../utils/validators/users');
+const { NotFoundError } = require('../errors/errors');
+const { ERROR_MESSAGES } = require('../utils/errorConst');
 
 const routes = express.Router();
 
-routes.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-  }),
-}), createUser);
+routes.all('*', express.json());
 
-// routes.post('signin', celebrate({
-Joi.object().keys({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
-}),
-// }), )
+routes.post('/signup', createUserValidator, createUser);
+routes.post('/signin', loginValidator, login);
 
-routes.use('/users', usersRoutes);
-// routes.use('/movies', )
+routes.all('*', auth);
+
+routes.use('/users', users);
+routes.use('/movies', movies);
 
 routes.all('*', (req, res, next) => {
-  next(new NotFoundError('Адрес не найден'));
+  next(new NotFoundError(ERROR_MESSAGES.PAGE_NOT_FOUND));
 });
 
 module.exports = { routes };

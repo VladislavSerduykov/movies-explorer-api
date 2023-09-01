@@ -62,9 +62,12 @@ const deleteMovie = (req, res, next) => {
 
   Movie.findById(id).populate('owner')
     .then(() => {
+      if (!Movie) {
+        throw new NotFoundError(ERROR_MESSAGES.MOVIE_NOT_FOUND);
+      }
       const ownerId = Movie.owner.id;
       if (ownerId !== userId) {
-        throw new UnauthorizedError('Нету прав');
+        throw new UnauthorizedError(ERROR_MESSAGES.UNAUTHORIZED);
       }
       Movie.findByIdAndRemove(id);
     })

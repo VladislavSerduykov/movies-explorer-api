@@ -4,6 +4,7 @@ const ERROR_MESSAGES = {
   FORBIDDEN: 'Недостаточно прав',
   USER_NOT_FOUND: 'Пользователь не найден',
   MOVIE_NOT_FOUND: 'Фильм не найден',
+  PAGE_NOT_FOUND: 'Адрес не найден',
   WRONG_CREDENTIALS: 'Неверный адресс запроса',
   UNAUTHORIZED: 'Для обработки запроса необходима авторизация',
   WRONG_DATA_AT_FIELD: 'Неверные данные в поле',
