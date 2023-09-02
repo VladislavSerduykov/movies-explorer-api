@@ -1,8 +1,19 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
-const { routes } = require('./routes/route');
 
-const { PORT = 3000, DB_ADDRESS = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
+const helmet = require('helmet');
+const cors = require('cors');
+
+const { errors } = require('celebrate');
+const defaultConfig = require('./utils/defaultConfig');
+const { routes } = require('./routes/routes');
+const { errorLogger, requestLogger } = require('./middlewares/logger');
+const { limiter } = require('./utils/limiter');
+const { errorHandler } = require('./middlewares/errorHandler');
+
+const { PORT = defaultConfig.PORT, DB_ADDRESS = defaultConfig.DATABASE_URL } = process.env;
 
 const app = express();
 
@@ -18,9 +29,15 @@ mongoose
     console.log(err);
   });
 
-app.use('*', express.json());
-
+app.use(cors());
+app.use(limiter);
+app.use(requestLogger);
+app.use(helmet());
 app.use(routes);
+
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App started on port ${PORT}`);
