@@ -64,7 +64,7 @@ async function createUser(req, res, next) {
 }
 
 const getUser = (req, res, next) => {
-  const { userId } = req.user._id;
+  const userId = req.user._id;
   User.findById(userId)
     .then((user) => {
       if (!user) {

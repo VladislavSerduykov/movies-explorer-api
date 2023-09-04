@@ -10,8 +10,11 @@ const { ERROR_MESSAGES } = require('../utils/errorConst');
 
 const getMovies = (req, res, next) => {
   const ownerId = req.user._id;
-  Movie.find({ owner: ownerId }).populate('owner')
-    .then(() => res.send(Movie))
+  Movie.find({ owner: ownerId })
+    .populate('owner')
+    .then((movie) => {
+      res.send(movie);
+    })
     .catch((err) => {
       if (!Movie) {
         next(new NotFoundError(ERROR_MESSAGES.MOVIE_NOT_FOUND));
@@ -23,7 +26,7 @@ const getMovies = (req, res, next) => {
 const addMovie = (req, res, next) => {
   const {
     country, director, duration,
-    year, description, image, trailer, nameRU, nameEN, thumbnail, movieId,
+    year, description, image, trailerLink, nameRU, nameEN, thumbnail, movieId,
   } = req.body;
   const ownerId = req.user._id;
 
@@ -34,13 +37,16 @@ const addMovie = (req, res, next) => {
     year,
     description,
     image,
-    trailer,
+    trailerLink,
     nameRU,
     nameEN,
     thumbnail,
     movieId,
     owner: ownerId,
-  }).populate('owner')
+  })
+    .then((movie) => {
+      movie.populate('owner');
+    })
     .then(() => res.status(201).send({
       message: 'Фильм добавлен',
     }))
@@ -58,18 +64,21 @@ const addMovie = (req, res, next) => {
 
 const deleteMovie = (req, res, next) => {
   const { id } = req.params;
-  const userId = req.user._id;
 
-  Movie.findById(id).populate('owner')
-    .then(() => {
-      if (!Movie) {
-        throw new NotFoundError(ERROR_MESSAGES.MOVIE_NOT_FOUND);
-      }
-      const ownerId = Movie.owner.id;
-      if (ownerId !== userId) {
+  Movie
+    .findById(id)
+    .populate('owner')
+    .orFail(new NotFoundError(ERROR_MESSAGES.MOVIE_NOT_FOUND))
+    .then((movie) => {
+      if (movie.owner.id.toString() !== req.user._id.toString()) {
         throw new UnauthorizedError(ERROR_MESSAGES.UNAUTHORIZED);
       }
-      Movie.findByIdAndRemove(id);
+      return Movie.findByIdAndDelete(id);
+    })
+    .then(() => {
+      res.send({
+        message: 'Фильм удален',
+      });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error) {

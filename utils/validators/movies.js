@@ -1,5 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
-const { validateIsUrl, validateObjectId } = require('../validateIsUrl');
+const { validateIsUrl } = require('../validateIsUrl');
+const { validateObjectId } = require('../validateObjectId');
 
 const addMovieValidator = celebrate({
   body: Joi.object().keys({
